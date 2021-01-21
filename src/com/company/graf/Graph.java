@@ -1,9 +1,12 @@
 package com.company.graf;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class Graph {
     private HashMap<String, Node> graph = new HashMap<String, Node>();
+    private List<Node> exitList = new ArrayList<>();
 
     public void add(String value) {
         graph.put(value, new Node(value));
@@ -16,42 +19,35 @@ public class Graph {
         graph.get(second).weight.add(weight);
     }
 
-    public HashMap<String, Integer> AlgorithmDijkstra(String vertex) {
-        HashMap<String, Integer> mapDijkstra = new HashMap<>();
-        prepare(vertex);
-        alg(graph.get(vertex));
-        for (String key : graph.keySet()) {
-            mapDijkstra.put(key, graph.get(key).label);
-        }
-        return mapDijkstra;
-    }
-
-    private void prepare(String vertex) {
-        for (String key : graph.keySet()) {
-            graph.get(key).isEnable = true;
-            if (graph.get(key).name.equals(vertex)) {
-                graph.get(key).label = 0;
-            } else {
-                graph.get(key).label = -1;
-            }
-        }
-    }
-
-    private void alg(Node current) {
-        for(int i = 0;i<current.incident.size();i++) {
-            if(current.incident.get(i).label == -1) {
-                current.incident.get(i).label = current.weight.get(i) + current.label;
-            }else{
-                if( current.incident.get(i).label >current.weight.get(i)+current.label){
-                    current.incident.get(i).label = current.weight.get(i) + current.label;
+    // выводит минимальное оставное дерево (алгоритм дейкстры прима)
+    public void AlgorithmDijkstra(String firstVertex) {
+        exitList = new ArrayList<>();
+        exitList.add(graph.get(firstVertex));
+        int endSize = graph.keySet().size();
+        while(exitList.size()!=endSize) {
+            Integer min = 100000;
+            Node minNode = null;
+            Node parentNode = null;
+            for(Node item:exitList){
+                for(int i=0;i<item.incident.size();i++) {
+                    if(item.weight.get(i)<min && !isItVertexInExitList(item.incident.get(i))){
+                        min = item.weight.get(i);
+                        minNode = item.incident.get(i);
+                        parentNode = item;
+                    }
                 }
             }
+            System.out.println(parentNode.name + " --> "+ minNode.name);
+            exitList.add(minNode);
         }
-        current.isEnable = false;
-        for(int i = 0;i<current.incident.size();i++) {
-            if(current.incident.get(i).isEnable) {
-                alg(current.incident.get(i));
+    }
+
+    private boolean isItVertexInExitList(Node node) {
+        for(Node item:exitList){
+            if(item == node){
+                return true;
             }
         }
+        return false;
     }
 }
