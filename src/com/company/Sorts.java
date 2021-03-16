@@ -1,7 +1,5 @@
 package com.company;
 
-import com.company.dto.SortInformation;
-
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -18,10 +16,71 @@ public class Sorts {
         this.comparator = comparator;
     }
 
+    // сортировка вставками с последовательным поиском
+    public List byInsert(List list) {
+        for (int j = 1; j < list.size(); j++) {
+            int i = j - 1;
+            while (i > -1 && compare(list, i, i + 1) > 0) {
+                swap(list, i, i + 1);
+                i--;
+            }
+        }
+        return list;
+    }
+    //сортировка вставками с бинарным поиском
+    public List byInsertWithBinarySearch(List list) {
+        for (int i = 1; i < list.size(); i++) {
+            int minIndex = 0;
+            int maxIndex = i;
+            while (minIndex < maxIndex) {
+                int mid = minIndex + ((maxIndex - minIndex) / 2);
+                if (compare(list, i, mid) < 0) {
+                    maxIndex = mid;
+                } else {
+                    minIndex = mid + 1;
+                }
+            }
+            Object key = list.get(i);
+            for (int j = i; j >= minIndex + 1; j--) {
+                list.set(j, list.get(j - 1));
+                countPermutation++;
+            }
+            list.set(minIndex, key);
+            countPermutation++;
+        }
+        return list;
+    }
+
+    // сортировка шелла
+    public List shell(List list) {
+        for (int step = list.size() / 2; step > 0; step /= 2) {
+            for (int i = step; i < list.size(); i++) {
+                int j = i - step;
+                while (j >= 0 && compare(list, j, j + step) > 0) {
+                    swap(list, j, j + step);
+                    j -= step;
+                }
+            }
+        }
+        return list;
+    }
+    //пузырьковая сортировка
+    public List vail(List list) {
+        for (int i = 0; i < list.size(); i++) {
+            for (int j = 0; j < list.size() - 1; j++) {
+                if (compare(list, j, j + 1) > 0) {
+                    swap(list, j, j + 1);
+                }
+            }
+        }
+        return list;
+    }
+
+    // сортировка быстрая
     // осевой элемент - первый (для нахождения худщего случая)
     public List quick(List list) {
         if (list.size() == 2) {
-            if (compare(list, 0, 1) < 0) {
+            if (compare(list, 0, 1) > 0) {
                 swap(list, 0, 1);
             }
             return list;
@@ -31,13 +90,12 @@ public class Sorts {
         }
         List listLeft = new ArrayList();
         List listRight = new ArrayList();
-
         int midIndex = 0;
         for (int i = 0; i < list.size(); i++) {
             if(i == midIndex){
                 continue;
             }
-            if (compare(list, i, midIndex) >= 0) {
+            if (compare(list, i, midIndex) <= 0) {
                 countPermutation++;
                 listLeft.add(list.get(i));
             }else{
@@ -51,6 +109,7 @@ public class Sorts {
         return list;
     }
 
+    // сортировка слиянием
     public List mergers(List list) {
         if (list.size() == 2) {
             if (compare(list, 0, 1) > 0) {
@@ -126,12 +185,6 @@ public class Sorts {
         swapWithoutCount(list, i1, i2);
     }
 
-    void fillStak(List list, Stack stack){
-        for(int i=list.size()-1;i>-1;i--){
-            stack.push(list.get(i));
-        }
-    }
-
     private void swapWithoutCount(List list, int i1, int i2) {
         Object tmp = list.get(i1);
         list.set(i1, list.get(i2));
@@ -141,6 +194,12 @@ public class Sorts {
     private int compare(List list, int a, int b) {
         countComparison++;
         return comparator.compare(list.get(a), list.get(b));
+    }
+
+    void fillStak(List list, Stack stack){
+        for(int i=list.size()-1;i>-1;i--){
+            stack.push(list.get(i));
+        }
     }
 
     public int getCountPermutation() {
